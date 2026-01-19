@@ -37,6 +37,11 @@ export class JFApi {
         return libraries;
     }
 
+    async getLibrary(id: string): Promise<JFLibrary | undefined> {
+        const libraries = await this.getLibraries();
+
+        return libraries.find(x => x.id == id);
+    }
 
     async getLibraryItems(library_id: string, fillWidth: number = 250): Promise<Array<JFItem>> {
         const content = await this.fetchApi(`/Items?ParentId=${library_id}`)
