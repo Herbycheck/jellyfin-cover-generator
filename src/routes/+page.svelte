@@ -34,5 +34,5 @@
 </form>
 
 {#if paramsSet}
-	<a href="/generate">View Libraries</a>
+	<a href="/libraries">View Libraries</a>
 {/if}
