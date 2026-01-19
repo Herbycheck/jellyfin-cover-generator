@@ -1,3 +1,5 @@
+import type { JFItem, JFLibrary } from "./types/jellyfin";
+
 export class JFApi {
     baseUrl: string;
     apiKey: string;
@@ -16,19 +18,36 @@ export class JFApi {
         })
     }
 
-    async getLibraries(): Promise<Array<any>> {
-        const libraries = await this.fetchApi("/Library/VirtualFolders")
+    async getLibraries(): Promise<Array<JFLibrary>> {
+        const response = await this.fetchApi("/Library/VirtualFolders")
+        const json = await response.json();
 
-        return await libraries.json()
+        const libraries: JFLibrary[] = [];
+
+        for (const libraryData of json) {
+            const library: JFLibrary = {
+                name: libraryData.Name,
+                id: libraryData.ItemId,
+                imageUrl: `${this.baseUrl}/Items/${libraryData.ItemId}/Images/Primary`
+            }
+
+            libraries.push(library);
+        }
+
+        return libraries;
     }
 
 
-    async getLibraryImages(library_id: string): Promise<Array<any>> {
+    async getLibraryItems(library_id: string, fillWidth: number = 250): Promise<Array<JFItem>> {
         const content = await this.fetchApi(`/Items?ParentId=${library_id}`)
 
         let items = (await content.json()).Items
 
-        const mapped = items.map((x: { Name: string; Id: string; }) => ({ name: x.Name, imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary?fillWidth=250` }))
+        const mapped = items.map((x: { Name: string; Id: string; }) =>
+        ({
+            name: x.Name,
+            imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary?fillWidth=${fillWidth}`
+        }))
 
         return mapped;
     }

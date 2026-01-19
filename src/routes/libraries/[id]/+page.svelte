@@ -16,17 +16,25 @@
 		if (!(baseUrl.length > 0 && apiKey.length > 0) || !page.params.id) redirect(303, '/');
 
 		const api = new JFApi(baseUrl, apiKey);
-		libraryContent = await api.getLibraryImages(page.params.id);
+		libraryContent = await api.getLibraryItems(page.params.id);
 	});
+
+	const render = () => {
+		console.log("Rendering")
+	}
 </script>
 
-{#each libraryContent as item}
-	<div>
-		<h3>{item.Name}</h3>
-		<img
-			src={item.imageUrl}
-			class="h-32 rounded-md"
-			alt="Library Cover"
-		/>
-	</div>
-{/each}
+<button onclick={render}>
+	Render
+</button>
+
+<table>
+	<tbody>
+		<tr>
+			<th>Title</th>
+		</tr>
+		{#each libraryContent as item}
+			<tr><td>{item.name}</td></tr>
+		{/each}
+	</tbody>
+</table>
