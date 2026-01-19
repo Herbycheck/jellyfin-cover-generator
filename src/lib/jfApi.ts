@@ -23,13 +23,13 @@ export class JFApi {
     }
 
 
-    async getLibraryImages(library_id: string) {
+    async getLibraryImages(library_id: string): Promise<Array<any>> {
         const content = await this.fetchApi(`/Items?ParentId=${library_id}`)
 
         let items = (await content.json()).Items
 
-        items = items.map((x: { Name: string; Id: string; }) => ({ name: x.Name, imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary?fillWidth=250` }))
+        const mapped = items.map((x: { Name: string; Id: string; }) => ({ name: x.Name, imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary?fillWidth=250` }))
 
-        return items
+        return mapped;
     }
 }
