@@ -1,9 +1,12 @@
 import type { JFItem } from "$lib/types/jellyfin";
-import type { WallCanvasOptions, ImageLoadOptions, CanvasWorkerMessage, InitMessage, RenderMessage, PreviewMessage } from "$lib/types/WallCanvas";
+import type { WallCanvasOptions, ImageLoadOptions, CanvasWorkerMessage, InitMessage, RenderMessage } from "$lib/types/WallCanvas";
+
+import CanvasWorker from '$lib/Canvas/CanvasWorker?worker';
 
 export class WallCanvas {
     images: Array<HTMLImageElement> = [];
     canvas: HTMLCanvasElement;
+    img: HTMLImageElement;
     offscreenCanvas: OffscreenCanvas;
 
     options: WallCanvasOptions = {
@@ -16,21 +19,38 @@ export class WallCanvas {
     title: string | null = null;
     worker: Worker;
 
-    public constructor(canvas: HTMLCanvasElement) {
+    public constructor(canvas: HTMLCanvasElement, image: HTMLImageElement) {
         this.canvas = canvas;
+        this.img = image;
+
         this.offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height);
 
-        this.worker = new Worker(new URL("CanvasWorker.js", import.meta.url))
+        this.worker = new CanvasWorker();
 
         this.worker.onmessage = (event: MessageEvent<CanvasWorkerMessage>) => {
             const message = event.data;
-            console.log(message);
 
             switch (message.type) {
                 case "frame":
                     this.recieveFrame(message.bitmap);
+                    break;
+                case "ready":
+                    console.log("Worker ready");
+                    break;
+                case "done":
+                    this.img.src = message.url;
+                    console.log(message.url);
+                    break;
             }
         }
+    }
+
+    public render() {
+        const renderMesage: RenderMessage = {
+            type: "render"
+        }
+
+        this.worker.postMessage(renderMesage);
     }
 
     private recieveFrame(bitmap: ImageBitmap) {
@@ -60,11 +80,8 @@ export class WallCanvas {
 
         this.renderPart(canvasWidth, canvasHeight);
 
-        const initMessage : InitMessage = {type: "init", tile: this.offscreenCanvas.transferToImageBitmap()};
+        const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap() };
         this.worker.postMessage(initMessage)
-
-        const startMessage: PreviewMessage = {type: "preview"};
-        this.worker.postMessage(startMessage);
     }
 
     // Renders a table of imgages that will be tiled later

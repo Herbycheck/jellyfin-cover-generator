@@ -20,14 +20,19 @@ export interface RenderMessage {
     type: "render"
 }
 
-export interface PreviewMessage {
-    type: "preview"
-}
-
 export interface FrameMessage {
     type: "frame",
     bitmap: ImageBitmap
 }
 
+export interface ReadyMessage {
+    type: "ready"
+}
 
-export type CanvasWorkerMessage = InitMessage | RenderMessage | PreviewMessage | FrameMessage;
+export interface DoneMessage {
+    type: "done",
+    url: string
+}
+
+
+export type CanvasWorkerMessage = InitMessage | RenderMessage | FrameMessage | ReadyMessage | DoneMessage;

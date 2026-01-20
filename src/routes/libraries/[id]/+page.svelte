@@ -13,6 +13,7 @@
 
 	let baseUrl = '';
 	let canvas: HTMLCanvasElement;
+	let img: HTMLImageElement;
 	let renderer!: WallCanvas;
 
 	onMount(async () => {
@@ -25,13 +26,20 @@
 		library = await api.getLibrary(page.params.id);
 		libraryContent = await api.getLibraryItems(page.params.id);
 
-		renderer = new WallCanvas(canvas);
+		renderer = new WallCanvas(canvas, img);
 
 		renderer.loadImages(libraryContent);
 	});
 </script>
 
+<button
+	onclick={() => {
+		renderer.render();
+	}}>Render</button
+>
+
 <canvas id="canvas" bind:this={canvas}></canvas>
+<img id="image" bind:this={img} alt="" />
 
 <table>
 	<tbody>
@@ -45,7 +53,7 @@
 </table>
 
 <style>
-	#canvas{
+	#canvas {
 		padding: 10px;
 		background-color: gray;
 	}
