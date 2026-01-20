@@ -46,7 +46,7 @@ export class JFApi {
     async getLibraryItems(library_id: string, fillWidth: number = 250): Promise<Array<JFItem>> {
         const content = await this.fetchApi(`/Items?ParentId=${library_id}`)
 
-        let items = (await content.json()).Items
+        const items = (await content.json()).Items
 
         const mapped = items.map((x: { Name: string; Id: string; }) =>
         ({

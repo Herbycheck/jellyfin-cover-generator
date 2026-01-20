@@ -65,7 +65,7 @@ export class WallCanvas {
 
         this.title = finalOptions.title || null;
 
-        let loading = [];
+        const loading = [];
 
         for (const item of items) {
             loading.push(this.loadImage(item));
@@ -73,8 +73,8 @@ export class WallCanvas {
 
         this.images = await Promise.all(loading);
 
-        let canvasWidth = (finalOptions.width + this.options.posterPadding.x) * this.options.columns
-        let canvasHeight = (finalOptions.height + this.options.posterPadding.y) * this.options.rows
+        const canvasWidth = (finalOptions.width + this.options.posterPadding.x) * this.options.columns
+        const canvasHeight = (finalOptions.height + this.options.posterPadding.y) * this.options.rows
 
         this.setSize(canvasWidth, canvasHeight)
 
@@ -104,27 +104,12 @@ export class WallCanvas {
                 imageIdx++;
                 imageIdx = imageIdx % this.images.length
 
-                let dx = x * (this.options.posterSize.x + this.options.posterPadding.x) + this.options.posterPadding.x / 2;
-                let dy = y * (this.options.posterSize.y + this.options.posterPadding.y) + this.options.posterPadding.y / 2;
+                const dx = x * (this.options.posterSize.x + this.options.posterPadding.x) + this.options.posterPadding.x / 2;
+                const dy = y * (this.options.posterSize.y + this.options.posterPadding.y) + this.options.posterPadding.y / 2;
 
                 ctx.drawImage(this.images[imageIdx], dx, dy)
             }
         }
-    }
-
-    private drawText(ctx: CanvasRenderingContext2D, text: string) {
-        ctx.resetTransform()
-        ctx.filter = "brightness(1)"
-        // Select the font size and type from one of the natively available fonts
-        ctx.font = 'bold 60px sans-serif';
-
-        // Select the style that will be used to fill the text in
-        ctx.fillStyle = '#ffffff';
-
-        // Actually fill the text with a solid color
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
     }
 
     private setSize(canvasWidth: number, canvasHeight: number) {
@@ -133,7 +118,7 @@ export class WallCanvas {
     }
 
     private async loadImage(item: JFItem): Promise<HTMLImageElement> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const img = new Image()
             img.onload = () => resolve(img)
             img.crossOrigin = "anonymous"
