@@ -43,7 +43,7 @@ export class JFApi {
         return libraries.find(x => x.id == id);
     }
 
-    async getLibraryItems(library_id: string, fillWidth: number = 250): Promise<Array<JFItem>> {
+    async getLibraryItems(library_id: string): Promise<Array<JFItem>> {
         const content = await this.fetchApi(`/Items?ParentId=${library_id}`)
 
         const items = (await content.json()).Items
@@ -51,7 +51,7 @@ export class JFApi {
         const mapped = items.map((x: { Name: string; Id: string; }) =>
         ({
             name: x.Name,
-            imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary?fillWidth=${fillWidth}`
+            imageUrl: `${this.baseUrl}/Items/${x.Id}/Images/Primary`
         }))
 
         return mapped;

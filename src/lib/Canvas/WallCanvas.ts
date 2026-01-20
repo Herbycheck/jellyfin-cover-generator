@@ -1,7 +1,9 @@
 import type { JFItem } from "$lib/types/jellyfin";
-import type { WallCanvasOptions, ImageLoadOptions, CanvasWorkerMessage, InitMessage, RenderMessage } from "$lib/types/WallCanvas";
+import type { WallCanvasOptions, CanvasWorkerMessage, InitMessage, RenderMessage } from "$lib/types/WallCanvas";
 
 import CanvasWorker from '$lib/Canvas/CanvasWorker?worker';
+
+const posterRatio = 1.5;
 
 export class WallCanvas {
     images: Array<HTMLImageElement> = [];
@@ -10,8 +12,8 @@ export class WallCanvas {
     offscreenCanvas: OffscreenCanvas;
 
     options: WallCanvasOptions = {
-        posterSize: { x: 250, y: 375 },
-        posterPadding: { x: 20, y: 20 },
+        posterWidth: 250, // The height should be width * 1.5
+        posterPadding: 20,
         rows: 2,
         columns: 4
     }
@@ -60,11 +62,7 @@ export class WallCanvas {
         ctx.drawImage(bitmap, 0, 0);
     }
 
-    public async loadImages(items: Array<JFItem>, options: ImageLoadOptions = {}) {
-        const finalOptions = { width: 250, height: 375, title: undefined, ...options };
-
-        this.title = finalOptions.title || null;
-
+    public async loadImages(items: Array<JFItem>) {
         const loading = [];
 
         for (const item of items) {
@@ -73,20 +71,18 @@ export class WallCanvas {
 
         this.images = await Promise.all(loading);
 
-        const canvasWidth = (finalOptions.width + this.options.posterPadding.x) * this.options.columns
-        const canvasHeight = (finalOptions.height + this.options.posterPadding.y) * this.options.rows
-
-        this.setSize(canvasWidth, canvasHeight)
-
-        this.renderPart(canvasWidth, canvasHeight);
+        this.renderPart();
 
         const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap() };
         this.worker.postMessage(initMessage)
     }
 
     // Renders a table of imgages that will be tiled later
-    private renderPart(width: number, height: number) {
-        this.offscreenCanvas = new OffscreenCanvas(width, height)
+    private renderPart() {
+        this.updateSize()
+
+        this.offscreenCanvas = new OffscreenCanvas(this.canvas.width, this.canvas.height)
+
         const ctx = this.offscreenCanvas.getContext("2d", { alpha: false });
 
         if (!ctx) {
@@ -99,20 +95,25 @@ export class WallCanvas {
 
         let imageIdx = 0;
 
+        const posterHeight = this.options.posterWidth * 1.5;
+
         for (let y = 0; y < this.options.rows; y++) {
             for (let x = 0; x < this.options.columns; x++) {
                 imageIdx++;
                 imageIdx = imageIdx % this.images.length
 
-                const dx = x * (this.options.posterSize.x + this.options.posterPadding.x) + this.options.posterPadding.x / 2;
-                const dy = y * (this.options.posterSize.y + this.options.posterPadding.y) + this.options.posterPadding.y / 2;
+                const dx = x * (this.options.posterWidth + this.options.posterPadding) + this.options.posterPadding / 2;
+                const dy = y * (posterHeight + this.options.posterPadding) + this.options.posterPadding / 2;
 
-                ctx.drawImage(this.images[imageIdx], dx, dy)
+                ctx.drawImage(this.images[imageIdx], dx, dy, this.options.posterWidth, posterHeight)
             }
         }
     }
 
-    private setSize(canvasWidth: number, canvasHeight: number) {
+    private updateSize() {
+        const canvasWidth = (this.options.posterWidth + this.options.posterPadding) * this.options.columns
+        const canvasHeight = (this.options.posterWidth * posterRatio + this.options.posterPadding) * this.options.rows
+
         this.canvas.width = canvasWidth;
         this.canvas.height = canvasHeight;
     }
@@ -122,7 +123,7 @@ export class WallCanvas {
             const img = new Image()
             img.onload = () => resolve(img)
             img.crossOrigin = "anonymous"
-            img.src = item.imageUrl
+            img.src = `${item.imageUrl}?fillWidth=${this.options.posterWidth}`
         })
     }
 }
