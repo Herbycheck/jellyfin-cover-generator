@@ -28,7 +28,7 @@
 
 		renderer = new WallCanvas(canvas, img);
 
-		renderer.loadImages(libraryContent);
+		renderer.setItems(libraryContent);
 	});
 </script>
 

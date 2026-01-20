@@ -62,13 +62,17 @@ export class WallCanvas {
         ctx.drawImage(bitmap, 0, 0);
     }
 
-    public async loadImages(items: Array<JFItem>) {
-        const loading = [];
-
-        for (const item of items) {
-            loading.push(this.loadImage(item));
+    public async setItems(items: Array<JFItem>) {
+        const toLoad = [...items]; // Copy the array by value since we will be potentially removing items from it
+        const neededCount = this.options.columns * this.options.rows;
+        if (toLoad.length > neededCount) {
+            toLoad.splice(neededCount); // Keep only enough items to fill one tile so we wont load the user's entire library
         }
 
+        const loading = [];
+        for (const item of toLoad) {
+            loading.push(this.loadImage(item));
+        }
         this.images = await Promise.all(loading);
 
         this.renderPart();
