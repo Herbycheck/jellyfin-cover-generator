@@ -12,7 +12,7 @@ export class WallCanvas {
     offscreenCanvas: OffscreenCanvas;
 
     options: WallCanvasOptions = {
-        posterWidth: 250, // The height should be width * 1.5
+        posterWidth: 100, // The height should be width * 1.5
         posterPadding: 20,
         rows: 2,
         columns: 4
@@ -34,14 +34,17 @@ export class WallCanvas {
 
             switch (message.type) {
                 case "frame":
+                    this.canvas.style.display = "block";
+                    this.img.style.display = "none";
                     this.recieveFrame(message.bitmap);
                     break;
                 case "ready":
                     console.log("Worker ready");
                     break;
                 case "done":
+                    this.img.style.display = "block";
+                    this.canvas.style.display = "none";
                     this.img.src = message.url;
-                    console.log(message.url);
                     break;
             }
         }

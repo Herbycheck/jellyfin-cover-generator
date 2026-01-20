@@ -7,17 +7,19 @@
 	import { redirect } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { WallCanvas } from '$lib/Canvas/WallCanvas';
+	import type { WallCanvasOptions } from '$lib/types/WallCanvas';
 
 	let library = $state<JFLibrary>();
 	let libraryContent = $state<Array<any>>();
 
-	let baseUrl = '';
 	let canvas: HTMLCanvasElement;
 	let img: HTMLImageElement;
-	let renderer!: WallCanvas;
+
+	let renderer: WallCanvas | undefined;
+	let rendererOptions: WallCanvasOptions | undefined = $state();
 
 	onMount(async () => {
-		baseUrl = localStorage.getItem('baseUrl') || '';
+		const baseUrl = localStorage.getItem('baseUrl') || '';
 		const apiKey = localStorage.getItem('apiKey') || '';
 
 		if (!(baseUrl.length > 0 && apiKey.length > 0) || !page.params.id) redirect(303, '/');
@@ -27,19 +29,44 @@
 		libraryContent = await api.getLibraryItems(page.params.id);
 
 		renderer = new WallCanvas(canvas, img);
+		rendererOptions = renderer.options;
 
 		renderer.setItems(libraryContent);
 	});
+
+	function updateOptions() {
+		if (!renderer) return;
+
+		renderer.options = rendererOptions!;
+		renderer.setItems(libraryContent!);
+	}
 </script>
+
+<div class="outputDisplay">
+	<canvas id="canvas" bind:this={canvas}></canvas>
+	<img id="image" bind:this={img} alt="" style="display: none;" />
+</div>
+
+{#if rendererOptions}
+	<div class="options">
+		Poster Width
+		<input type="number" bind:value={rendererOptions.posterWidth} />
+		Space between posters
+		<input type="number" bind:value={rendererOptions.posterPadding} />
+		Rows
+		<input type="number" bind:value={rendererOptions.rows} />
+		Columns
+		<input type="number" bind:value={rendererOptions.columns} />
+
+		<button onclick={updateOptions}>Update</button>
+	</div>
+{/if}
 
 <button
 	onclick={() => {
-		renderer.render();
+		renderer?.render();
 	}}>Render</button
 >
-
-<canvas id="canvas" bind:this={canvas}></canvas>
-<img id="image" bind:this={img} alt="" />
 
 <table>
 	<tbody>
@@ -53,8 +80,44 @@
 </table>
 
 <style>
-	#canvas {
-		padding: 10px;
+	.outputDisplay {
+		width: fit-content;
+		max-width: 80vw;
 		background-color: gray;
+		padding: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	.outputDisplay > * {
+		width: 100%;
+	}
+
+	.options {
+		width: 40vw;
+		margin-left: auto;
+		margin-right: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	label {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	button {
+		background-color: red;
+		border: none;
+		color: white;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		cursor: pointer;
 	}
 </style>
