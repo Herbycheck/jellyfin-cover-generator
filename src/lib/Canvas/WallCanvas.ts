@@ -1,9 +1,10 @@
 import type { JFItem } from "$lib/types/jellyfin";
-import type { WallCanvasOptions, ImageLoadOptions } from "$lib/types/WallCanvas";
+import type { WallCanvasOptions, ImageLoadOptions, CanvasWorkerMessage, InitMessage, RenderMessage, PreviewMessage } from "$lib/types/WallCanvas";
 
 export class WallCanvas {
     images: Array<HTMLImageElement> = [];
     canvas: HTMLCanvasElement;
+    offscreenCanvas: OffscreenCanvas;
 
     options: WallCanvasOptions = {
         posterSize: { x: 250, y: 375 },
@@ -13,9 +14,30 @@ export class WallCanvas {
     }
 
     title: string | null = null;
+    worker: Worker;
 
     public constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
+        this.offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+
+        this.worker = new Worker(new URL("CanvasWorker.js", import.meta.url))
+
+        this.worker.onmessage = (event: MessageEvent<CanvasWorkerMessage>) => {
+            const message = event.data;
+            console.log(message);
+
+            switch (message.type) {
+                case "frame":
+                    this.recieveFrame(message.bitmap);
+            }
+        }
+    }
+
+    private recieveFrame(bitmap: ImageBitmap) {
+        const ctx = this.canvas.getContext("2d")!;
+
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.drawImage(bitmap, 0, 0);
     }
 
     public async loadImages(items: Array<JFItem>, options: ImageLoadOptions = {}) {
@@ -35,16 +57,26 @@ export class WallCanvas {
         let canvasHeight = (finalOptions.height + this.options.posterPadding.y) * this.options.rows
 
         this.setSize(canvasWidth, canvasHeight)
+
+        this.renderPart(canvasWidth, canvasHeight);
+
+        const initMessage : InitMessage = {type: "init", tile: this.offscreenCanvas.transferToImageBitmap()};
+        this.worker.postMessage(initMessage)
+
+        const startMessage: PreviewMessage = {type: "preview"};
+        this.worker.postMessage(startMessage);
     }
 
-    public draw() {
-        const ctx = this.canvas.getContext("2d", { alpha: false });
+    // Renders a table of imgages that will be tiled later
+    private renderPart(width: number, height: number) {
+        this.offscreenCanvas = new OffscreenCanvas(width, height)
+        const ctx = this.offscreenCanvas.getContext("2d", { alpha: false });
 
         if (!ctx) {
-            throw new Error("Could not get canvas 2d context");
+            throw new Error("Could not get canvas 2d context for the offscreen canvas");
         }
 
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.clearRect(0, 0, this.offscreenCanvas.width, this.offscreenCanvas.height)
 
         ctx.filter = "drop-shadow(-2px 2px 5px #202020)"
 
@@ -60,10 +92,6 @@ export class WallCanvas {
 
                 ctx.drawImage(this.images[imageIdx], dx, dy)
             }
-        }
-
-        if (this.title) {
-            this.drawText(ctx, this.title);
         }
     }
 

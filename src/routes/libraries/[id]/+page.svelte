@@ -29,14 +29,7 @@
 
 		renderer.loadImages(libraryContent);
 	});
-
-	const render = () => {
-		console.log('Rendering');
-		renderer.draw();
-	};
 </script>
-
-<button onclick={render}> Render </button>
 
 <canvas id="canvas" bind:this={canvas}></canvas>
 
@@ -50,3 +43,10 @@
 		{/each}
 	</tbody>
 </table>
+
+<style>
+	#canvas{
+		padding: 10px;
+		background-color: gray;
+	}
+</style>

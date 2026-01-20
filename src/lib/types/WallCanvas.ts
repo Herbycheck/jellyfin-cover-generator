@@ -10,3 +10,24 @@ export interface ImageLoadOptions {
     height?: number,
     title?: string
 }
+
+export interface InitMessage {
+    type: "init",
+    tile: ImageBitmap
+}
+
+export interface RenderMessage {
+    type: "render"
+}
+
+export interface PreviewMessage {
+    type: "preview"
+}
+
+export interface FrameMessage {
+    type: "frame",
+    bitmap: ImageBitmap
+}
+
+
+export type CanvasWorkerMessage = InitMessage | RenderMessage | PreviewMessage | FrameMessage;
