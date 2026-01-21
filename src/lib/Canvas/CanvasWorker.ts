@@ -1,4 +1,4 @@
-import type { CanvasWorkerMessage, DoneMessage, FrameMessage, InitMessage, LogMessage, ProgressMessage } from "$lib/types/WallCanvas";
+import type { CanvasWorkerMessage, DoneMessage, FrameMessage, InitMessage, LogMessage, ProgressMessage, WallCanvasOptions } from "$lib/types/WallCanvas";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
 
@@ -8,6 +8,8 @@ let canvas = new OffscreenCanvas(1, 1);
 let tile: ImageBitmap;
 
 let ffmpeg: FFmpeg | null = null;
+
+let options!: WallCanvasOptions;
 
 self.onmessage = (event: MessageEvent<CanvasWorkerMessage>) => {
     const message = event.data;
@@ -25,7 +27,7 @@ self.onmessage = (event: MessageEvent<CanvasWorkerMessage>) => {
 async function init(message: InitMessage) {
     canvas = new OffscreenCanvas(message.tile.width, message.tile.height);
     tile = message.tile;
-    draw(0);
+    options = message.options;
 
     ffmpeg = new FFmpeg();
 
@@ -49,8 +51,9 @@ async function init(message: InitMessage) {
         wasmURL: await toBlobURL(`${ffmpegBase}/ffmpeg-core.wasm`, 'application/wasm'),
     });
 
-
     self.postMessage({ type: "ready" })
+
+    draw(0);
 }
 
 async function draw(frame: number = 0, encode = false) {
@@ -67,13 +70,18 @@ async function draw(frame: number = 0, encode = false) {
 
     ctx.setTransform(1, -0.3, 0.5, 1, 0, 0);
 
-    ctx.filter = "blur(0px)"
-
+    if (options.animationFilter) {
+        ctx.filter = options.animationFilter;
+    } else {
+        ctx.filter = "blur(0px)"
+    }
     for (let y = -2; y <= 2; y++) {
         for (let x = -2; x <= 2; x++) {
             ctx.drawImage(tile, frame + canvas.width * x, canvas.height * y)
         }
     }
+
+    if(options.title) addText(ctx);
 
     if (encode && ffmpeg) {
         const blob = await canvas.convertToBlob({ type: "image/png" });
@@ -130,4 +138,20 @@ async function encode() {
     }
 
     self.postMessage(message);
+}
+
+function addText(ctx: OffscreenCanvasRenderingContext2D) {
+    ctx.filter = "blur(0px)";
+    ctx.resetTransform()
+
+    // Select the font size and type from one of the natively available fonts
+    ctx.font = 'bold 60px sans-serif';
+
+    // Select the style that will be used to fill the text in
+    ctx.fillStyle = '#ffffff';
+
+    // Actually fill the text with a solid color
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText(options.title!, canvas.width / 2, canvas.height / 2);
 }

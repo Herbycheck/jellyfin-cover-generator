@@ -31,6 +31,7 @@
 		libraryContent = await api.getLibraryItems(page.params.id);
 
 		renderer = new WallCanvas(canvas, img, logOut, progress);
+		renderer.options.title = library?.name;
 		rendererOptions = renderer.options;
 
 		renderer.setItems(libraryContent);
@@ -90,7 +91,7 @@
 	}}>Render</button
 >
 
-<pre bind:this={logOut}></pre>
+<pre bind:this={logOut} class="consoleOutput"></pre>
 
 <table>
 	<tbody>
@@ -143,6 +144,15 @@
 		display: inline-block;
 		font-size: 16px;
 		cursor: pointer;
+	}
+
+	.consoleOutput{
+		font-family: monospace;
+		background-color: rgb(42, 42, 42);
+		overflow: scroll;
+		width: 80%;
+		height: 300px;
+		padding: 10px;
 	}
 
 	.progressDiv {

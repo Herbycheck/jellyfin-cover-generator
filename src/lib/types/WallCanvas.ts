@@ -4,11 +4,13 @@ export interface WallCanvasOptions {
     rows: number,
     columns: number,
     title: string | undefined;
+    animationFilter: string | undefined;
 }
 
 export interface InitMessage {
     type: "init",
-    tile: ImageBitmap
+    tile: ImageBitmap,
+    options: WallCanvasOptions
 }
 
 export interface RenderMessage {
