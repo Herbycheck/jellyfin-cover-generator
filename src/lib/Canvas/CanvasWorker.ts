@@ -81,7 +81,7 @@ async function draw(frame: number = 0, encode = false) {
 
 async function render() {
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < canvas.width; i++) {
         await draw(i, true);
     }
 

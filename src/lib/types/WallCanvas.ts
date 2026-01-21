@@ -2,12 +2,14 @@ export interface WallCanvasOptions {
     posterWidth: number,
     posterPadding: number,
     rows: number,
-    columns: number
+    columns: number,
+    title: string | undefined;
 }
 
 export interface InitMessage {
     type: "init",
     tile: ImageBitmap
+    options: WallCanvasOptions
 }
 
 export interface RenderMessage {

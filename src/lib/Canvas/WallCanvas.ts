@@ -15,7 +15,8 @@ export class WallCanvas {
         posterWidth: 100, // The height should be width * 1.5
         posterPadding: 20,
         rows: 2,
-        columns: 4
+        columns: 4,
+        title: ""
     }
 
     title: string | null = null;
@@ -80,7 +81,7 @@ export class WallCanvas {
 
         this.renderPart();
 
-        const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap() };
+        const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap(), options: this.options };
         this.worker.postMessage(initMessage)
     }
 

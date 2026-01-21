@@ -29,6 +29,7 @@
 		libraryContent = await api.getLibraryItems(page.params.id);
 
 		renderer = new WallCanvas(canvas, img);
+		renderer.options.title = library?.name;
 		rendererOptions = renderer.options;
 
 		renderer.setItems(libraryContent);
@@ -49,14 +50,30 @@
 
 {#if rendererOptions}
 	<div class="options">
-		Poster Width
-		<input type="number" bind:value={rendererOptions.posterWidth} />
-		Space between posters
-		<input type="number" bind:value={rendererOptions.posterPadding} />
-		Rows
-		<input type="number" bind:value={rendererOptions.rows} />
-		Columns
-		<input type="number" bind:value={rendererOptions.columns} />
+		<label for="width">
+			Poster Width
+			<input name="width" type="number" bind:value={rendererOptions.posterWidth} />
+		</label>
+
+		<label for="padding">
+			Space between posters
+			<input name="padding" type="number" bind:value={rendererOptions.posterPadding} />
+		</label>
+
+		<label for="rows">
+			Rows
+			<input name="rows" type="number" bind:value={rendererOptions.rows} />
+		</label>
+
+		<label for="columns">
+			Columns
+			<input name="columns" type="number" bind:value={rendererOptions.columns} />
+		</label>
+
+		<label>
+			Text
+			<input type="text" bind:value={rendererOptions.title} />
+		</label>
 
 		<button onclick={updateOptions}>Update</button>
 	</div>
@@ -95,16 +112,16 @@
 	}
 
 	.options {
-		width: 40vw;
+		width: 600px;
+		max-width: 90vw;
 		margin-left: auto;
 		margin-right: auto;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: stretch;
 	}
 
-	label {
-		width: 100%;
+	label{
 		display: flex;
 		justify-content: space-between;
 	}
