@@ -1,4 +1,4 @@
-import type { CanvasWorkerMessage, DoneMessage, FrameMessage, InitMessage } from "$lib/types/WallCanvas";
+import type { CanvasWorkerMessage, DoneMessage, FrameMessage, InitMessage, LogMessage, ProgressMessage } from "$lib/types/WallCanvas";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
 
@@ -28,6 +28,21 @@ async function init(message: InitMessage) {
     draw(0);
 
     ffmpeg = new FFmpeg();
+
+    ffmpeg.on("log", (event) => {
+        self.postMessage({
+            type: "log",
+            message: event.message
+        } as LogMessage)
+    })
+
+    ffmpeg.on("progress", (event) => {
+        self.postMessage({
+            type: "progress",
+            step: "ffmpeg",
+            progress: event.progress
+        } as ProgressMessage)
+    })
 
     await ffmpeg.load({
         coreURL: await toBlobURL(`${ffmpegBase}/ffmpeg-core.js`, 'text/javascript'),
@@ -70,12 +85,16 @@ async function draw(frame: number = 0, encode = false) {
         );
     }
 
-    const message: FrameMessage = {
+    self.postMessage({
         type: "frame",
         bitmap: canvas.transferToImageBitmap()
-    }
+    } as FrameMessage);
 
-    self.postMessage(message);
+    self.postMessage({
+        type: "progress",
+        step: "drawing",
+        progress: frame / canvas.width
+    } as ProgressMessage)
 
 }
 
@@ -91,12 +110,6 @@ async function render() {
 async function encode() {
     if (!ffmpeg) return;
 
-    const firstFrame = await ffmpeg.readFile("00000.png");
-    console.log(firstFrame.length); // should be > 0
-
-    console.log(await ffmpeg.listDir("/"))
-
-
     await ffmpeg.exec([
         "-i", "%05d.png",
         "-vcodec", "libwebp",
@@ -105,8 +118,6 @@ async function encode() {
         "-quality", "50",
         "out.webp"
     ]);
-
-    console.log(await ffmpeg.listDir("/"))
 
 
     const data = await ffmpeg.readFile("out.webp");

@@ -1,5 +1,5 @@
 import type { JFItem } from "$lib/types/jellyfin";
-import type { WallCanvasOptions, CanvasWorkerMessage, InitMessage, RenderMessage } from "$lib/types/WallCanvas";
+import type { WallCanvasOptions, CanvasWorkerMessage, InitMessage, RenderMessage, LogMessage, DoneMessage, ProgressMessage } from "$lib/types/WallCanvas";
 
 import CanvasWorker from '$lib/Canvas/CanvasWorker?worker';
 
@@ -7,8 +7,12 @@ const posterRatio = 1.5;
 
 export class WallCanvas {
     images: Array<HTMLImageElement> = [];
+
     canvas: HTMLCanvasElement;
     img: HTMLImageElement;
+    logOut: HTMLPreElement;
+    progress: HTMLDivElement;
+
     offscreenCanvas: OffscreenCanvas;
 
     options: WallCanvasOptions = {
@@ -22,9 +26,11 @@ export class WallCanvas {
     title: string | null = null;
     worker: Worker;
 
-    public constructor(canvas: HTMLCanvasElement, image: HTMLImageElement) {
+    public constructor(canvas: HTMLCanvasElement, image: HTMLImageElement, logOut: HTMLPreElement, progress: HTMLDivElement) {
         this.canvas = canvas;
         this.img = image;
+        this.logOut = logOut;
+        this.progress = progress;
 
         this.offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height);
 
@@ -43,15 +49,33 @@ export class WallCanvas {
                     console.log("Worker ready");
                     break;
                 case "done":
-                    this.img.style.display = "block";
-                    this.canvas.style.display = "none";
-                    this.img.src = message.url;
+                    this.showResults(message);
                     break;
+                case "log":
+                    this.updateLog(message);
+                    break;
+                case "progress":
+                    this.updateProgress(message);
             }
         }
     }
+    private updateProgress(message: ProgressMessage) {
+        this.progress.style.width = `${message.progress * 100}%`
+
+    }
+
+    private showResults(message: DoneMessage) {
+        this.img.style.display = "block";
+        this.canvas.style.display = "none";
+        this.img.src = message.url;
+    }
+
+    private updateLog(message: LogMessage) {
+        this.logOut.innerText += message.message + "\n";
+    }
 
     public render() {
+        this.logOut.innerText = "";
         const renderMesage: RenderMessage = {
             type: "render"
         }
@@ -81,7 +105,7 @@ export class WallCanvas {
 
         this.renderPart();
 
-        const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap(), options: this.options };
+        const initMessage: InitMessage = { type: "init", tile: this.offscreenCanvas.transferToImageBitmap() };
         this.worker.postMessage(initMessage)
     }
 

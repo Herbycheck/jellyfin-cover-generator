@@ -14,6 +14,8 @@
 
 	let canvas: HTMLCanvasElement;
 	let img: HTMLImageElement;
+	let logOut: HTMLPreElement;
+	let progress: HTMLDivElement;
 
 	let renderer: WallCanvas | undefined;
 	let rendererOptions: WallCanvasOptions | undefined = $state();
@@ -28,8 +30,7 @@
 		library = await api.getLibrary(page.params.id);
 		libraryContent = await api.getLibraryItems(page.params.id);
 
-		renderer = new WallCanvas(canvas, img);
-		renderer.options.title = library?.name;
+		renderer = new WallCanvas(canvas, img, logOut, progress);
 		rendererOptions = renderer.options;
 
 		renderer.setItems(libraryContent);
@@ -46,6 +47,10 @@
 <div class="outputDisplay">
 	<canvas id="canvas" bind:this={canvas}></canvas>
 	<img id="image" bind:this={img} alt="" style="display: none;" />
+</div>
+
+<div class="progressDiv">
+	<div class="progress" bind:this={progress}></div>
 </div>
 
 {#if rendererOptions}
@@ -85,6 +90,8 @@
 	}}>Render</button
 >
 
+<pre bind:this={logOut}></pre>
+
 <table>
 	<tbody>
 		<tr>
@@ -121,7 +128,7 @@
 		align-items: stretch;
 	}
 
-	label{
+	label {
 		display: flex;
 		justify-content: space-between;
 	}
@@ -136,5 +143,16 @@
 		display: inline-block;
 		font-size: 16px;
 		cursor: pointer;
+	}
+
+	.progressDiv {
+		height: 30px;
+		width: 100%;
+	}
+	.progress{
+		height: 30px;
+		width: 0%;
+		background-color: green;
+		transition: all 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
 	}
 </style>

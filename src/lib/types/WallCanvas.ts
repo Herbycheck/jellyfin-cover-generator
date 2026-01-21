@@ -9,7 +9,6 @@ export interface WallCanvasOptions {
 export interface InitMessage {
     type: "init",
     tile: ImageBitmap
-    options: WallCanvasOptions
 }
 
 export interface RenderMessage {
@@ -30,5 +29,16 @@ export interface DoneMessage {
     url: string
 }
 
+export interface LogMessage {
+    type: "log",
+    message: string;
+}
 
-export type CanvasWorkerMessage = InitMessage | RenderMessage | FrameMessage | ReadyMessage | DoneMessage;
+export interface ProgressMessage {
+    type: "progress",
+    step: "drawing" | "ffmpeg",
+    progress: number
+}
+
+
+export type CanvasWorkerMessage = InitMessage | RenderMessage | FrameMessage | ReadyMessage | DoneMessage | LogMessage | ProgressMessage;
