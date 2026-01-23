@@ -1,10 +1,123 @@
-body{
-    font-family: sans-serif;
+:root{
+    --background-color: #282828;
+    --background-light: #3c3836;
+    --text-color: #cfccac;
+    --text-color-alt: #000;
+
+    --color-primary: #d65d0e;
+    --color-secondary: #fe8019;
+    --color-other: #cc241d;
+    --color-shadow: #00000041;
+    --color-danger: #9d0006;
+
+    --border-radius-md: 15px;
+    --padding-md: 15px;
+
+    --default-gap: 15px;
+}
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    transition: 0.2s;
 }
 
-@media (prefers-color-scheme: dark) {
-body{
-    background-color: black;
-    color: white;
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    margin: 0px;
+    padding: var(--padding-md);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-wrap: balance;
+    margin-top: 0;
+}
+
+a {
+    text-decoration: underline;
+    color: var(--text-color);
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 90%;
+    gap: 5px;
+}
+
+input {
+    padding: 10px;
+    border-style: solid;
+    border-radius: var(--border-radius-md);
+}
+
+button {
+	background-color: var(--color-primary);
+	border: none;
+    border-radius: var(--border-radius-md);
+	color: var(--text-color-alt);
+	padding: 10px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.card{
+    background-color: var(--background-light);
+    box-shadow: 0px 0px 15px var(--color-shadow);
+    border-radius: var(--border-radius-md);
+    padding: var(--padding-md);
+    margin: 15px;
+    width: 100%;
+}
+
+@media screen and (min-width: 800px) {
+    .card{
+        width: 800px;
+    }
+    
 }

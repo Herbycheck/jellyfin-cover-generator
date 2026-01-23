@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import { WallCanvas } from '$lib/Canvas/WallCanvas';
 	import type { WallCanvasOptions } from '$lib/types/WallCanvas';
+	import { preventDefault } from 'svelte/legacy';
 
 	let library = $state<JFLibrary>();
 	let libraryContent = $state<Array<any>>();
@@ -37,7 +38,8 @@
 		renderer.setItems(libraryContent);
 	});
 
-	function updateOptions() {
+	function updateOptions(event: SubmitEvent) {
+		event.preventDefault();
 		if (!renderer) return;
 
 		renderer.options = rendererOptions!;
@@ -45,17 +47,18 @@
 	}
 </script>
 
-<div class="outputDisplay">
-	<canvas id="canvas" bind:this={canvas}></canvas>
-	<img id="image" bind:this={img} alt="" style="display: none;" />
-</div>
+<div class="card">
+	<div class="outputDisplay">
+		<canvas id="canvas" bind:this={canvas}></canvas>
+		<img id="image" bind:this={img} alt="" style="display: none;" />
+	</div>
 
-<div class="progressDiv">
-	<div class="progress" bind:this={progress}></div>
+	<div class="progressDiv">
+		<div class="progress" bind:this={progress}></div>
+	</div>
 </div>
-
 {#if rendererOptions}
-	<div class="options">
+	<form onsubmit={updateOptions} class="options card">
 		<label for="width">
 			Poster Width
 			<input name="width" type="number" bind:value={rendererOptions.posterWidth} />
@@ -81,88 +84,64 @@
 			<input type="text" bind:value={rendererOptions.title} />
 		</label>
 
-		<button onclick={updateOptions}>Update</button>
-	</div>
+		<button type="submit">Update</button>
+	</form>
 {/if}
+<div>
+	<button
+		onclick={() => {
+			renderer?.render();
+		}}>Render</button
+	>
+</div>
 
-<button
-	onclick={() => {
-		renderer?.render();
-	}}>Render</button
->
-
-<pre bind:this={logOut} class="consoleOutput"></pre>
-
-<table>
-	<tbody>
-		<tr>
-			<th>Title</th>
-		</tr>
-		{#each libraryContent as item}
-			<tr><td>{item.name}</td></tr>
-		{/each}
-	</tbody>
-</table>
+<div class="card">
+	<pre bind:this={logOut} class="consoleOutput"></pre>
+</div>
 
 <style>
 	.outputDisplay {
-		width: fit-content;
-		max-width: 80vw;
-		background-color: gray;
-		padding: 10px;
-		margin-left: auto;
-		margin-right: auto;
-		margin-top: 10px;
-		margin-bottom: 10px;
+		display: flex;
+		justify-content: center;
 	}
 	.outputDisplay > * {
-		width: 100%;
+		max-height: 600px;
 	}
-
-	.options {
-		width: 600px;
-		max-width: 90vw;
-		margin-left: auto;
-		margin-right: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: stretch;
-	}
-
 	label {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
-	button {
-		background-color: red;
-		border: none;
-		color: white;
-		padding: 15px 32px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 16px;
-		cursor: pointer;
+	.options {
+		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+		gap: 5px 15px;
 	}
 
-	.consoleOutput{
+	.consoleOutput {
 		font-family: monospace;
 		background-color: rgb(42, 42, 42);
 		overflow: scroll;
-		width: 80%;
+		width: 100%;
 		height: 300px;
-		padding: 10px;
+		padding: var(--padding-md);
+		border-radius: var(--border-radius-md);
+		margin: 0px;
 	}
 
 	.progressDiv {
-		height: 30px;
+		background-color: var(--background-color);
+		height: 36px;
 		width: 100%;
+		margin-top: 5px;
+		border-radius: var(--border-radius-md);
 	}
-	.progress{
-		height: 30px;
+
+	.progress {
+		height: 36px;
 		width: 0%;
 		background-color: green;
-		transition: all 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
+		border-radius: var(--border-radius-md);
+		transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
 	}
 </style>

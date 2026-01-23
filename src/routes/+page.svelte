@@ -1,26 +1,28 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-    let baseUrl = "", apiKey = "", paramsSet = false;
+	let baseUrl = '',
+		apiKey = '',
+		paramsSet = false;
 
 	function setSecrets() {
 		localStorage.setItem('baseUrl', baseUrl);
 		localStorage.setItem('apiKey', apiKey);
 
-        paramsSet = true;
+		paramsSet = true;
 	}
 
 	onMount(() => {
-        // Localstorage isnt available when rendering serverside so we have to get these here
+		// Localstorage isnt available when rendering serverside so we have to get these here
 
 		baseUrl = localStorage.getItem('baseUrl') || '';
 		apiKey = localStorage.getItem('baseUrl') || '';
 
-        paramsSet = baseUrl.length > 0 && apiKey.length > 0;
+		paramsSet = baseUrl.length > 0 && apiKey.length > 0;
 	});
 </script>
 
-<form on:submit|preventDefault={setSecrets}>
+<form on:submit|preventDefault={setSecrets} class="card">
 	<h2>Please enter the url and api key for your Jellyfin instance.</h2>
 	<p>The url and api key stay in your browser and are never sent anywhere except to your server</p>
 
@@ -34,5 +36,7 @@
 </form>
 
 {#if paramsSet}
-	<a href="/libraries">View Libraries</a>
+	<div class="card">
+		<a class="button" href="/libraries">View Libraries</a>
+	</div>
 {/if}
