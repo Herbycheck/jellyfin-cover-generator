@@ -8,7 +8,6 @@
 	import { onMount } from 'svelte';
 	import { WallCanvas } from '$lib/Canvas/WallCanvas';
 	import type { WallCanvasOptions } from '$lib/types/WallCanvas';
-	import { preventDefault } from 'svelte/legacy';
 
 	let library = $state<JFLibrary>();
 	let libraryContent = $state<Array<any>>();
@@ -57,38 +56,39 @@
 		<div class="progress" bind:this={progress}></div>
 	</div>
 </div>
-{#if rendererOptions}
-	<form onsubmit={updateOptions} class="options card">
-		<label for="width">
-			Poster Width
-			<input name="width" type="number" bind:value={rendererOptions.posterWidth} />
-		</label>
+<div class="card">
+	<h2>Options</h2>
+	{#if rendererOptions}
+		<form onsubmit={updateOptions} class="options">
+			<label for="width">
+				Poster Width
+				<input name="width" type="number" bind:value={rendererOptions.posterWidth} />
+			</label>
 
-		<label for="padding">
-			Space between posters
-			<input name="padding" type="number" bind:value={rendererOptions.posterPadding} />
-		</label>
+			<label for="padding">
+				Space between posters
+				<input name="padding" type="number" bind:value={rendererOptions.posterPadding} />
+			</label>
 
-		<label for="rows">
-			Rows
-			<input name="rows" type="number" bind:value={rendererOptions.rows} />
-		</label>
+			<label for="rows">
+				Rows
+				<input name="rows" type="number" bind:value={rendererOptions.rows} />
+			</label>
 
-		<label for="columns">
-			Columns
-			<input name="columns" type="number" bind:value={rendererOptions.columns} />
-		</label>
+			<label for="columns">
+				Columns
+				<input name="columns" type="number" bind:value={rendererOptions.columns} />
+			</label>
 
-		<label>
-			Text
-			<input type="text" bind:value={rendererOptions.title} />
-		</label>
+			<label>
+				Text
+				<input type="text" bind:value={rendererOptions.title} />
+			</label>
 
-		<button type="submit">Update</button>
-	</form>
-{/if}
-<div>
-	<button
+			<button type="submit">Update</button>
+		</form>
+	{/if}
+	<button class="primary"
 		onclick={() => {
 			renderer?.render();
 		}}>Render</button
@@ -96,6 +96,7 @@
 </div>
 
 <div class="card">
+	<h2>Logs</h2>
 	<pre bind:this={logOut} class="consoleOutput"></pre>
 </div>
 
@@ -103,6 +104,7 @@
 	.outputDisplay {
 		display: flex;
 		justify-content: center;
+		margin-bottom: 30px;
 	}
 	.outputDisplay > * {
 		max-height: 600px;
@@ -114,6 +116,7 @@
 	}
 
 	.options {
+		width: 100%;
 		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 		gap: 5px 15px;
 	}

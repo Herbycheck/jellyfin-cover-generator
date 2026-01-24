@@ -93,17 +93,25 @@ input {
     border-radius: var(--border-radius-md);
 }
 
-button {
-	background-color: var(--color-primary);
+a.button,button {
+	background-color: var(--background-color);
 	border: none;
     border-radius: var(--border-radius-md);
-	color: var(--text-color-alt);
+	color: var(--text-color);
 	padding: 10px;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
 	font-size: 16px;
 	cursor: pointer;
+    border-color: var(--color-secondary);
+    border-width: 2px;
+    border-style: solid;
+}
+
+a.button.primary, button.primary {
+    background-color: var(--color-primary);
+    color: var(--text-color-alt);
 }
 
 .card{
