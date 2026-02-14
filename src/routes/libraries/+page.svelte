@@ -5,6 +5,7 @@
 
 	import { redirect } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
+	import Libraries from '$lib/components/Library/Libraries.svelte';
 
 	let libraries = $state<Array<JFLibrary>>();
 
@@ -21,41 +22,8 @@
 </script>
 
 <h1>Libraries</h1>
-<div class="libraries">
-	{#each libraries as library}
-		<a href={`/libraries/${library.id}`}>
-			<div class="card library">
-				<img src={library.imageUrl} alt="Library" />
 
-				<h2>{library.name}</h2>
-			</div>
-		</a>
-	{/each}
-</div>
+{#if libraries}
+	<Libraries {libraries}/>
+{/if}
 
-<style>
-	img {
-		width: 100%;
-	}
-
-	.libraries {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-		gap: 15px;
-		padding: 15px;
-		width: 80vw;
-		justify-items: center;
-	}
-
-	.library {
-		display: flex;
-		width: 500px;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-
-	h2 {
-		margin: 0px;
-	}
-</style>
