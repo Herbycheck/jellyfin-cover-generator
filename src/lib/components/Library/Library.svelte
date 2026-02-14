@@ -3,24 +3,29 @@
 	let { library }: { library: JFLibrary } = $props();
 </script>
 
-<a href={`/libraries/${library.id}`}>
-	<div class="card library">
-		<img src={library.imageUrl} alt="Library" />
+<a href={`/libraries/${library.id}`} class="library">
+	<img src={library.imageUrl} alt="Library" />
 
-		<h2>{library.name}</h2>
-	</div>
+	<h2 class="m-0">{library.name}</h2>
 </a>
 
 <style>
 	.library {
 		display: flex;
-		width: 500px;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: space-around;
 		align-items: center;
+		background-color: var(--background-color);
+
+		border-radius: var(--border-radius-md);
+		padding: var(--padding-md);
 	}
 
-	h2 {
-		margin: 0px;
+	img {
+		flex-grow: 1;
+		min-width: 0px;
+		aspect-ratio: initial;
+		object-fit: contain;
+		
 	}
 </style>

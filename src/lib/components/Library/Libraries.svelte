@@ -5,7 +5,7 @@
 	let { libraries }: { libraries: JFLibrary[] } = $props();
 </script>
 
-<div class="libraries">
+<div class="libraries card">
 	{#each libraries as library}
 		<Library {library} />
 	{/each}
@@ -14,10 +14,9 @@
 <style>
 	.libraries {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 15px;
 		padding: 15px;
-		width: 80vw;
 		justify-items: center;
 	}
 </style>

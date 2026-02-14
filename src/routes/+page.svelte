@@ -58,7 +58,7 @@
 	{#if libraries}
 		<Libraries {libraries} />
 	{:else}
-		<h1>Something wrong...</h1>
+		<p>Loading...</p>
 	{/if}
 {/if}
 
