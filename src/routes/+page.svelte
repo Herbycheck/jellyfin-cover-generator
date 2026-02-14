@@ -1,24 +1,41 @@
 <script lang="ts">
+	import Libraries from '$lib/components/Library/Libraries.svelte';
+	import { JFApi } from '$lib/jfApi';
+	import type { JFLibrary } from '$lib/types/jellyfin';
 	import { onMount } from 'svelte';
 
-	let baseUrl = '',
-		apiKey = '',
-		paramsSet = false;
+	let libraries = $state<Array<JFLibrary>>();
+
+	let baseUrl = $state(''),
+		apiKey = $state(''),
+		paramsSet = $state(false);
 
 	function setSecrets() {
 		localStorage.setItem('baseUrl', baseUrl);
 		localStorage.setItem('apiKey', apiKey);
 
 		paramsSet = true;
+
+		updateLibraries();
+	}
+
+	async function updateLibraries() {
+		if (baseUrl.length == 0 || apiKey.length == 0) return;
+
+		const api = new JFApi(baseUrl, apiKey);
+
+		libraries = await api.getLibraries();
 	}
 
 	onMount(() => {
 		// Localstorage isnt available when rendering serverside so we have to get these here
 
 		baseUrl = localStorage.getItem('baseUrl') || '';
-		apiKey = localStorage.getItem('baseUrl') || '';
+		apiKey = localStorage.getItem('apiKey') || '';
 
 		paramsSet = baseUrl.length > 0 && apiKey.length > 0;
+
+		updateLibraries();
 	});
 </script>
 
@@ -38,9 +55,11 @@
 </form>
 
 {#if paramsSet}
-	<div class="card">
-		<a class="button" href="/libraries">View Libraries</a>
-	</div>
+	{#if libraries}
+		<Libraries {libraries} />
+	{:else}
+		<h1>Something wrong...</h1>
+	{/if}
 {/if}
 
 <div class="card">
