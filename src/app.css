@@ -2,6 +2,7 @@
     --background-color: #282828;
     --background-light: #3c3836;
     --text-color: #cfccac;
+    --text-color-weak: #9b9874;
     --text-color-alt: #000;
 
     --color-primary: #d65d0e;
@@ -121,6 +122,18 @@ a.button.primary, button.primary {
     padding: var(--padding-md);
     margin: 15px;
     width: 100%;
+}
+
+.weak{
+    color: var(--text-color-weak);
+}
+
+.m-0{
+    margin: 0px;
+}
+
+.text-center{
+    text-align: center;
 }
 
 @media screen and (min-width: 800px) {
