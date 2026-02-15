@@ -4,7 +4,7 @@ export class JFApi {
     baseUrl: string;
     apiKey: string;
     constructor(baseUrl: string, apikey: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl.replace(/\/$/, ""); // Removes trailing slash
         this.apiKey = apikey;
     }
 

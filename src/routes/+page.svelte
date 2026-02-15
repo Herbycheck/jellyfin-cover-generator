@@ -10,7 +10,8 @@
 		apiKey = $state(''),
 		paramsSet = $state(false);
 
-	function setSecrets() {
+	function setSecrets(event: SubmitEvent) {
+		event.preventDefault();
 		localStorage.setItem('baseUrl', baseUrl);
 		localStorage.setItem('apiKey', apiKey);
 
@@ -39,7 +40,7 @@
 	});
 </script>
 
-<form on:submit|preventDefault={setSecrets} class="card">
+<form onsubmit={setSecrets} class="card">
 	<h2 class="text-center">Please enter the url and api key for your Jellyfin instance.</h2>
 	<label for="url">Instance URL</label>
 	<input type="url" name="url" id="url" bind:value={baseUrl} />
